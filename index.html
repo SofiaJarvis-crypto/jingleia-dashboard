@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>JingleIA - Agentes IA</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0d1a;color:#fff;font-family:system-ui,sans-serif;min-height:100vh}
+.hdr{background:linear-gradient(135deg,#1e1e2e,#13131f);border-bottom:1px solid #2a2a3e;padding:22px 28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.hdr h1{font-size:22px;font-weight:800;background:linear-gradient(90deg,#6366f1,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hdr p{color:#555;font-size:13px;margin-top:4px}
+.sdot{color:#10b981;font-size:12px;font-weight:600}
+.smeta{color:#555;font-size:11px;margin-top:2px;text-align:right}
+.notif{margin:14px 28px 0;padding:10px 16px;border-radius:10px;font-size:13px;display:none}
+.ok{background:#10b98115;border:1px solid #10b98140;color:#10b981;display:block}
+.er{background:#ef444415;border:1px solid #ef444440;color:#ef4444;display:block}
+.tabs{display:flex;gap:2px;padding:18px 28px 0;border-bottom:1px solid #2a2a3e;flex-wrap:wrap}
+.tab{background:transparent;color:#666;border:none;border-radius:8px 8px 0 0;padding:9px 16px;cursor:pointer;font-weight:600;font-size:13px}
+.tab.on{background:#6366f1;color:#fff}
+.con{padding:24px 28px}
+.sec{display:none}
+.sec.on{display:block}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.card{background:#1e1e2e;border:1px solid #2a2a3e;border-radius:12px;padding:18px}
+.ac{background:#1e1e2e;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:12px}
+.btn{border:none;border-radius:10px;padding:10px 0;cursor:pointer;font-weight:600;font-size:14px;color:#fff;width:100%}
+.btn:disabled{background:#2a2a3e!important;color:#555!important;cursor:not-allowed}
+.bfull{width:100%;border:none;border-radius:12px;padding:14px 0;cursor:pointer;font-weight:700;font-size:15px;background:linear-gradient(135deg,#6366f1,#ec4899);color:#fff;box-shadow:0 4px 20px #6366f130;margin-bottom:6px}
+.bfull:disabled{background:#2a2a3e!important;color:#555!important;cursor:not-allowed;box-shadow:none}
+.cron{background:#1e1e2e;border:1px solid #10b98130;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:#10b981}
+.sub{color:#555;font-size:12px;text-align:center;margin-bottom:20px}
+h2{font-size:17px;font-weight:700;color:#fff;margin-bottom:16px}
+.bdg{border-radius:6px;padding:2px 8px;font-size:11px;font-weight:600;background:#6366f115;color:#6366f1}
+.empty{text-align:center;color:#555;padding:60px 0;font-size:15px}
+.lr{background:#1e1e2e;border-radius:8px;padding:10px 14px;display:flex;gap:10px;align-items:center;margin-bottom:6px}
+.mr{background:#1e1e2e;border-radius:10px;padding:14px;border:1px solid #2a2a3e;margin-bottom:10px}
+.ar{background:#13131f;border-radius:8px;padding:9px 12px;font-size:12px;color:#aaa;line-height:1.6}
+pre{color:#888;font-size:11px;white-space:pre-wrap;word-break:break-word;max-height:120px;overflow:auto;margin-top:8px}
+.ds{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dg{background:#10b981;box-shadow:0 0 6px #10b981}
+.dy{background:#f59e0b;box-shadow:0 0 6px #f59e0b}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div><h1>🎵 JingleIA — Agentes IA</h1><p>4 agentes Haiku trabajando para maximizar tu revenue</p></div>
+  <div><div class="sdot">● Sistema activo</div><div class="smeta" id="smeta">Cargando...</div></div>
+</div>
+<div class="notif" id="notif"></div>
+<div class="tabs">
+  <button class="tab on" onclick="sw('agents')">🤖 Agentes</button>
+  <button class="tab" onclick="sw('marketing')">📸 Marketing</button>
+  <button class="tab" onclick="sw('suggestions')">💡 Sugerencias</button>
+  <button class="tab" onclick="sw('memory')">🧠 Memoria</button>
+  <button class="tab" onclick="sw('logs')">📋 Logs</button>
+</div>
+<div class="con">
+  <div class="sec on" id="sec-agents">
+    <div class="cron">⏰ Cron activo — corre <strong>automáticamente todos los lunes 9am Argentina</strong></div>
+    <button class="bfull" id="btnF" onclick="run('orchestrator')">🚀 Ejecutar CICLO COMPLETO (todos los agentes)</button>
+    <p class="sub">Analyst → Copywriter → Optimizer · ~60–90 seg</p>
+    <div class="g3" id="agCards"></div>
+  </div>
+  <div class="sec" id="sec-marketing"><h2>Contenido para Instagram</h2><div class="g3" id="mktGrid"></div></div>
+  <div class="sec" id="sec-suggestions"><h2>Sugerencias de mejora</h2><div class="g3" id="sugGrid"></div></div>
+  <div class="sec" id="sec-memory"><h2>🧠 Memoria compartida</h2><div id="memGrid"></div></div>
+  <div class="sec" id="sec-logs"><h2>📋 Logs</h2><div id="logGrid"></div></div>
+</div>
+
+<script>
+const API  = 'https://tlyycgdwbxobutgarpqm.supabase.co/functions/v1/dashboard';
+const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRseXljZ2R3YnhvYnV0Z2FycHFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxNDIyOTIsImV4cCI6MjA4NzcxODI5Mn0.nZPIsfwpJkTcDEd-xDlyUyiYxUtv-MJqYyZpHTk3oX8';
+const AG = [
+  {id:'analyst',   name:'🔍 Analista',   c:'#6366f1', d:'Analiza métricas y patrones de conversión'},
+  {id:'copywriter',name:'✍️ Copywriter',  c:'#f59e0b', d:'Genera contenido Instagram en tono argentino'},
+  {id:'optimizer', name:'🚀 Optimizador', c:'#10b981', d:'Sugiere mejoras de producto y revenue'},
+];
+let st={reports:[],content:[],suggestions:[],logs:[],memory:[]}, busy=false;
+const H = {Authorization:'Bearer '+ANON,'Content-Type':'application/json'};
+
+function sw(t){
+  document.querySelectorAll('.tab').forEach((x,i)=>x.classList.toggle('on',['agents','marketing','suggestions','memory','logs'][i]===t));
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.getElementById('sec-'+t).classList.add('on');
+}
+function ntf(m,t){
+  const e=document.getElementById('notif');
+  e.textContent=m; e.className='notif '+t;
+  if(t) setTimeout(()=>e.className='notif',6000);
+}
+async function load(){
+  try{
+    const r=await fetch(API+'/data',{headers:H});
+    st=await r.json();
+    render();
+    document.getElementById('smeta').textContent=st.reports.length+' reportes · '+st.content.length+' contenidos';
+  }catch(e){ntf('Error cargando datos: '+e.message,'er');}
+}
+async function run(id){
+  if(busy)return;
+  busy=true; ui(id,true);
+  try{
+    const r=await fetch(API+'/run?agent='+id,{method:'POST',headers:H});
+    const d=await r.json();
+    if(d.success){ntf('✅ Agente '+id+' completado!','ok'); await load();}
+    else ntf('❌ Error: '+JSON.stringify(d).slice(0,100),'er');
+  }catch(e){ntf('❌ '+e.message,'er');}
+  busy=false; ui(id,false);
+}
+function ui(id,on){
+  const bf=document.getElementById('btnF');
+  bf.disabled=on;
+  bf.textContent=on&&id==='orchestrator'?'⏳ Ejecutando ciclo completo...':'🚀 Ejecutar CICLO COMPLETO (todos los agentes)';
+  const b=document.getElementById('b-'+id);
+  if(b){b.disabled=on; b.textContent=on?'⏳ Ejecutando...':'▶ Ejecutar';}
+  const d=document.getElementById('d-'+id);
+  if(d) d.className='ds '+(on?'dy':'dg');
+}
+function rAg(){
+  document.getElementById('agCards').innerHTML=AG.map(a=>{
+    const r=st.reports.find(x=>x.agent_name===a.id);
+    return `<div class="ac" style="border:1px solid ${a.c}40">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="color:#fff;font-size:17px;font-weight:700">${a.name}</div>
+          <div style="color:#777;font-size:12px;margin-top:3px">${a.d}</div>
+        </div>
+        <div class="ds dg" id="d-${a.id}"></div>
+      </div>
+      ${r?`<div class="ar" style="border-left:3px solid ${a.c}">${r.summary.slice(0,160)}${r.summary.length>160?'…':''}</div>`:''}
+      <button class="btn" id="b-${a.id}" style="background:${a.c}" onclick="run('${a.id}')">▶ Ejecutar</button>
+    </div>`;
+  }).join('');
+}
+function rMkt(){
+  const g=document.getElementById('mktGrid');
+  if(!st.content.length){g.innerHTML='<div class="empty">📸<br><br>Ejecutá el Agente Copywriter para ver contenido acá.</div>';return;}
+  const em={instagram_post:'📸',instagram_story:'⚡',instagram_reel_hook:'🎬'};
+  g.innerHTML=st.content.map(i=>`
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <b style="color:#fff;font-size:13px">${em[i.content_type]||'📄'} ${i.content_type.replace(/_/g,' ')}</b>
+        <span class="bdg">${i.status}</span>
+      </div>
+      <p style="color:#ccc;font-size:12px;line-height:1.6">${(i.caption||'').slice(0,220)}</p>
+      ${i.hashtags?.length?`<p style="color:#6366f1;font-size:11px;margin-top:6px">${i.hashtags.slice(0,5).join(' ')}</p>`:''}
+      ${i.call_to_action?`<div style="background:#13131f;border-radius:6px;padding:5px 10px;font-size:11px;color:#f59e0b;margin-top:6px">CTA: ${i.call_to_action}</div>`:''}
+    </div>`).join('');
+}
+function rSug(){
+  const g=document.getElementById('sugGrid');
+  if(!st.suggestions.length){g.innerHTML='<div class="empty">💡<br><br>Ejecutá el Agente Optimizador para ver sugerencias acá.</div>';return;}
+  const pc={low:'#888',medium:'#f59e0b',high:'#ef4444',critical:'#ff4444'};
+  g.innerHTML=st.suggestions.map(i=>`
+    <div class="card" style="border-color:${pc[i.priority]||'#333'}40">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <b style="color:#fff;font-size:13px">${i.title}</b>
+        <span style="color:${pc[i.priority]||'#888'};font-size:11px;font-weight:700;text-transform:uppercase">${i.priority}</span>
+      </div>
+      <p style="color:#aaa;font-size:12px;line-height:1.5">${i.description}</p>
+      <div style="display:flex;gap:6px;margin-top:8px">
+        <span style="background:#6366f115;color:#6366f1;border-radius:5px;padding:2px 7px;font-size:11px">${i.category}</span>
+        <span style="background:#fff1;color:#888;border-radius:5px;padding:2px 7px;font-size:11px">${i.status}</span>
+      </div>
+    </div>`).join('');
+}
+function rMem(){
+  const g=document.getElementById('memGrid');
+  if(!st.memory.length){g.innerHTML='<div class="empty">La memoria se llena a medida que los agentes corren.</div>';return;}
+  g.innerHTML=st.memory.map(m=>`
+    <div class="mr">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span style="color:#6366f1;font-weight:600;font-size:13px">${m.agent_name} → ${m.key}</span>
+        <span style="color:#444;font-size:11px">${new Date(m.updated_at).toLocaleString('es-AR')}</span>
+      </div>
+      <pre>${JSON.stringify(m.value,null,2)}</pre>
+    </div>`).join('');
+}
+function rLog(){
+  const g=document.getElementById('logGrid');
+  if(!st.logs.length){g.innerHTML='<div class="empty">No hay logs aún. Ejecutá algún agente.</div>';return;}
+  g.innerHTML=st.logs.map(l=>`
+    <div class="lr" style="border:1px solid ${l.success?'#10b98120':'#ef444420'}">
+      <span>${l.success?'✅':'❌'}</span>
+      <div style="flex:1">
+        <span style="color:#6366f1;font-weight:600;font-size:12px">${l.agent_name}</span>
+        <span style="color:#555;font-size:12px"> → ${l.action}</span>
+        ${l.duration_ms>0?`<span style="color:#444;font-size:11px;margin-left:8px">${(l.duration_ms/1000).toFixed(1)}s</span>`:''}
+        ${l.tokens_used>0?`<span style="color:#444;font-size:11px;margin-left:6px">${l.tokens_used} tok</span>`:''}
+      </div>
+      <span style="color:#444;font-size:11px">${new Date(l.created_at).toLocaleTimeString('es-AR')}</span>
+    </div>`).join('');
+}
+function render(){rAg();rMkt();rSug();rMem();rLog();}
+load();
+setInterval(load, 30000);
+</script>
+</body>
+</html>
